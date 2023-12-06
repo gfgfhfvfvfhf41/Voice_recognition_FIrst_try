@@ -1,0 +1,177 @@
+import speech_recognition as sr
+import os
+import sys
+import webbrowser
+import pyttsx3 as p
+from datetime import datetime
+import time
+import datetime
+import random
+from fuzzywuzzy import fuzz
+import pyautogui as pg
+import keyboard
+import pyperclip
+
+opts = {
+    "alias": ('джарвис'),
+    "def": ('включи видео', 'запусти видео', 'открой видео', 'покажи видео'),
+    "cmds": {
+        "ctime": ('текущее время','сейчас времени','который час'),
+        "vk": ('открой вконтакте', 'включи вконтакте', 'открой вк'),
+        "y": ('открой  youtube', 'включи youtube'),
+        "steam": ('открой steam','включи steam'),
+        "steam1": ('закрой steam', 'отключи steam', 'выключи steam'),
+        "tg": ('запусти telegram', 'открой telegram', 'включи telegram'),
+        "screen": ('полный экран', 'в полный экран', 'верни обратно', 'выйди', 'из полного экрана', 'выключи', 'включи', 'войди'),
+        "chrome": ('запусти chrome', 'открой chrome', 'включи chrome', 'браузер'),
+        "chrome1": ('закрой chrome', 'отключи chrome', 'выключи chrome', 'браузер'),
+        "volumeup": ('повысь громкость ', 'увеличь громкость', 'добавь громкость', 'прибавь громкость'),
+        "volumedown": ('понизь громкость ', 'уменьши громкость', 'убавь громкость'),
+        "s": ('стоп', 'останови', 'стоп', 'пауза', 'возобнови', 'продолжи'),
+        "kursor": ('определи курсор', 'курсор'),
+        "for_y": ('положение')
+    }
+}
+
+speak_engine = p.init()
+def speak(what):
+    print( what )
+    speak_engine.say( what )
+    speak_engine.runAndWait()
+    speak_engine.stop()
+
+
+# Настройка микрофона
+def command():
+    rec = sr.Recognizer()
+    with sr.Microphone() as source:
+        # Бот ожидает нашего голоса
+        print('Bot: ...')
+        # Удаление фонового шума с записи
+        audio = rec.listen(source)
+    try:
+        global text
+        text = rec.recognize_google(audio, language="ru-RU").lower()
+        print("[log] Распознано: " + text)
+
+        if text.startswith(opts["alias"]):
+            cmd = text
+
+            if opts['alias'] in cmd:
+                cmd = cmd.replace("джарвис", "").strip()
+
+                if "включи видео" in cmd:
+                    cmd = cmd.replace("включи видео", "").strip()
+                    ex(cmd)
+
+                elif "запусти видео" in cmd:
+                    cmd = cmd.replace("запусти видео", "").strip()
+                    ex(cmd)
+
+                elif "открой видео" in cmd:
+                    cmd = cmd.replace("открой видео", "").strip()
+                    ex(cmd)
+
+                elif "покажи видео" in cmd:
+                    cmd = cmd.replace("покажи видео", "").strip()
+                    ex(cmd)
+
+                else:
+                    cmd = recognize_cmd(cmd)
+                    execute_cmd(cmd['cmd'])
+
+
+    except sr.UnknownValueError:
+        print("[log] Голос не распознан!")
+        time.sleep(0.1)
+    except sr.RequestError as e:
+        print("[log] Неизвестная ошибка, проверьте интернет!")
+
+
+def ex(cmd):
+    print(cmd)
+    var = len(cmd.split())
+    if var > 0:
+        webbrowser.open('https://youtube.com/')
+        pg.moveTo(824, 119, 2)
+        pg.click(824, 119)
+        buffer = pyperclip.paste()
+        pyperclip.copy(cmd)
+        keyboard.press_and_release('ctrl + v')
+        pg.typewrite(["enter"])
+    else:
+        return
+
+
+
+def recognize_cmd(cmd):
+    RC = {'cmd': '', 'percent': 0}
+    for c, v in opts['cmds'].items():
+
+        for x in v:
+            vrt = fuzz.ratio(cmd, x)
+            if vrt > RC['percent']:
+                RC['cmd'] = c
+                RC['percent'] = vrt
+    return RC
+
+
+def execute_cmd(cmd):
+    if cmd == 'ctime':
+        # сказать текущее время
+        now = datetime.datetime.now()
+        speak("Сейчас " + str(now.hour) + ":" + str(now.minute))
+
+    if cmd == 'vk':
+        print('Bot: Открываю сайт.')
+        webbrowser.open('https://vk.com/')
+
+    elif cmd == 'y':
+        print('Bot: Открываю сайт.')
+        webbrowser.open('https://youtube.com/')
+        speak(what)
+
+    elif cmd == 'steam':
+        os.startfile('C:\Program Files (x86)\Steam\steam.exe')
+
+    elif cmd == 'steam1':
+        os.system("taskkill /im steam.exe")
+
+    elif cmd == 'chrome':
+        os.startfile('C:\Program Files\Google\Chrome\Application\chrome.exe')
+
+    elif cmd == 'chrome1':
+        os.system("taskkill /im chrome.exe")
+
+    elif cmd == 'tg':
+        webbrowser.open('https://web.telegram.org/k/')
+
+    elif cmd == 'screen':
+        pg.typewrite(["f"])
+
+    elif cmd == 'volumeup':
+        keyboard.press_and_release("up")
+        keyboard.press_and_release("up")
+        keyboard.press_and_release("up")
+        keyboard.press_and_release("up")
+        keyboard.press_and_release("up")
+
+    elif cmd == 'volumedown':
+        keyboard.press_and_release("down")
+        keyboard.press_and_release("down")
+        keyboard.press_and_release("down")
+        keyboard.press_and_release("down")
+        keyboard.press_and_release("down")
+
+    elif cmd == 's':
+        keyboard.press_and_release("space")
+
+    elif cmd == 'kursor':
+        pg.click(820, 190)
+        pg.moveTo(824, 119, 0.3)
+        pg.click(820, 190)
+
+    elif cmd == 'for_y':
+        pg.moveTo(878, 117, 1)
+while True:
+    execute_cmd(command())
